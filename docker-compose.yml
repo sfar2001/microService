@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # Eureka Discovery Service
+  discovery-service:
+    image: discovery-service
+    build:
+      context: ./discovery-service
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - microservices-network
+
+  # API Gateway (should start after discovery)
+  api-gateway:
+    image: api-gateway
+    build:
+      context: ./api-gateway
+    ports:
+      - "8084:8084"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    networks:
+      - microservices-network
+
+  # Product Service
+  product-service:
+    image: product-service
+    build:
+      context: ./product-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    networks:
+      - microservices-network
+
+  # Inventory Service
+  inventory-service:
+    image: inventory-service
+    build:
+      context: ./inventory-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    networks:
+      - microservices-network
+
+  # Order Service
+  order-service:
+    image: order-service
+    build:
+      context: ./order-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    networks:
+      - microservices-network
+
+
+# Custom network for all services
+networks:
+  microservices-network:
+    driver: bridge
