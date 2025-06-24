@@ -21,7 +21,7 @@ graph TD
     D --> G[MongoDB Database]
     C --> H[Eureka Server]
     D --> H
-    B --> I[Keycloak (Auth)]
+    B --> I[Keycloak Auth]
 ```
 
 ---
